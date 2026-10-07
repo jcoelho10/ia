@@ -1,0 +1,56 @@
+service:
+  # --------------------------------------------------
+  # 1. Provedor de LLM Local (ollama)
+  # --------------------------------------------------
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ai_ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_storage:/root/.ollama
+    restart: unless-stopped
+
+  # ----------------------------------------------------
+  # 2. Cache e Rate Limiting (Redis)
+  # ----------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: ai_redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  # ----------------------------------------------------
+  # 3. Observabilidade e Logs (Loki, Promtail & Grafana)
+  # ----------------------------------------------------
+  loki:
+    image: grafana/loki:2.9.0
+    container_name: ai_loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    restart: unless-stopped
+
+  promtail:
+    image: grafana/promtail:2.9.0
+    container_name: ai_promtail
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - ./monitoring/promtail-config.yml:/etc/promtail/promtail-config.yml
+    command: -config.file=/etc/promtail/promtail-config.yml
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: ai_grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - loki
+    restart: unless-stopped
+
+volumes:
+  ollama_storage:
