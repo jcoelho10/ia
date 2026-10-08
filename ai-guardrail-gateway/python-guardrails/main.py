@@ -7,7 +7,7 @@ import re
 import logging
 
 # Configuracao de Logs para Observabilidade
-logging.basicConfig(level=loggin.INFO)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("guardrails-service")
 
 app = FastAPI(

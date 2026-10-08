@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono;
 public class GatewayConfig {
 
     @Bean
-    public KeyResolver userKeyREsolver() {
+    public KeyResolver userKeyResolver() {
         // Aplica o Rate Limiting baseando-se no IP do cliente que faz a chamada
         return exchange -> Mono.just(
             exchange.getRequest().getRemoteAddress() != null ?

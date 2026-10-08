@@ -12,17 +12,26 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: python-guardrails-service
-          uri: http://localhost:8080
+        - id: ai-guardrail-service
+          uri: http://localhost:8000
           predicates:
             - Path=/api/v1/ai/**
           filters:
-            - StripPrefix=2
+            - StripPrefix=3
             - name: RequestRateLimiter
               args:
                 redis-rate-limiter.replenishRate: 5     # 5 requisicoes por segundo
                 redis-rate-limiter.burstCapacity: 10    # Pico de até 10 requisições
                 key-resolver: "#{@userKeyResolver}"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics, info, gateway
+  endpoint:
+    health:
+      show-details: always
 
 resilience4j:
   circuitbreaker:
